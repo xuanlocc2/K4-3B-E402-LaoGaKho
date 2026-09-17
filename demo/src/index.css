@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Base styles — set Inter as the default sans font
+ * and JetBrains Mono as the monospace font.
+ */
+@layer base {
+  html {
+    font-family: 'Inter', 'JetBrains Mono', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900;
+  }
+
+  * {
+    scroll-behavior: smooth;
+  }
+}

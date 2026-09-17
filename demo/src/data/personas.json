@@ -1,0 +1,48 @@
+[
+  {
+    "id": "minh",
+    "name": "Minh",
+    "level": "beginner",
+    "description": "Học viên mới, cần giải thích từ gốc, dùng ví dụ đời thường",
+    "history": [
+      {
+        "role": "user",
+        "text": "attention là gì?"
+      },
+      {
+        "role": "user",
+        "text": "giải thích đơn giản hơn"
+      },
+      {
+        "role": "user",
+        "text": "cho ví dụ"
+      }
+    ],
+    "grade_missing": false
+  },
+  {
+    "id": "lan",
+    "name": "Lan",
+    "level": "intermediate",
+    "description": "Học viên trung bình, cần giải thích vừa đủ, có thể dùng thuật ngữ",
+    "history": [
+      {
+        "role": "user",
+        "text": "self-attention khác gì cross-attention?"
+      },
+      {
+        "role": "user",
+        "text": "QKV là gì?"
+      }
+    ],
+    "grade_missing": false
+  },
+  {
+    "id": "anonymous",
+    "name": "Ẩn danh",
+    "level": "unknown",
+    "description": "Người dùng chưa có dữ liệu — không có điểm, không có lịch sử tương tác",
+    "history": [],
+    "grade_missing": true
+  }
+]
