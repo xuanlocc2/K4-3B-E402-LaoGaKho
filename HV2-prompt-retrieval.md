@@ -173,9 +173,9 @@ Mở file `canvas-cp1.md`, thêm vào dòng 6 (phần "Tự làm / Không tự")
 
 ### Checklist CP1 cho HV2
 
-- [ ] Định nghĩa "suy ra mức hiểu" đã ghi vào canvas dòng 6 (4 tín hiệu)
-- [ ] Định nghĩa "phát hiện segment hỏng" đã ghi vào canvas dòng 6 (2 nhóm điều kiện)
-- [ ] Threshold cho từng tín hiệu đã ghi rõ
+- [x] Định nghĩa "suy ra mức hiểu" đã ghi vào canvas dòng 6 (4 tín hiệu)
+- [x] Định nghĩa "phát hiện segment hỏng" đã ghi vào canvas dòng 6 (2 nhóm điều kiện)
+- [x] Threshold cho từng tín hiệu đã ghi rõ
 
 ---
 
