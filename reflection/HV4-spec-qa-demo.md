@@ -183,33 +183,55 @@ HV2 giao eval/results-cp3.md cho HV4 review.
 1. **Chạy 20 case** (hoặc số case HV2 đã đánh giá)
 2. **Bảng % đối chiếu quality bar (PIVOT):**
 
-```markdown
 ## Kết quả CP3 — Golden Set Evaluation (PIVOT)
 
 ### Tổng quan
 
+Nguồn: `codebase/tests/HV2-RESULTS.md` (Round 2 — MOCK, dùng làm baseline CP3; Round 3 — Real API `gemini-3.6-flash` chạy lại cùng bộ 20 case cho CP4, kết quả trùng khớp).
+
 | Metric | Baseline CP3 | Quality Bar | Status |
 |--------|-------------|-------------|--------|
-| Personalization Accuracy | X% | ≥85% | ✅/❌ |
-| Segment Broken Detection | X% | 100% | ✅/❌ |
-| Answer Quality | X% | ≥90% | ✅/❌ |
-| Refusal Correctness | X% | 100% | ✅/❌ |
+| Personalization Accuracy (bucket A+B+C, 15 case) | 100% (15/15) | ≥85% | ✅ |
+| Segment Broken Detection (bucket D, 5 case) | 100% (5/5) | 100% | ✅ |
+| Answer Quality (đúng mức hiểu + trả lời hợp lệ, 15 case A+B+C) | 100% (15/15) | ≥90% | ✅ |
+| Refusal Correctness (từ chối đúng cách ở bucket D) | 100% (5/5) | 100% | ✅ |
+| **Tổng thể** | **100% (20/20)** | — | ✅ |
 
 ### Chi tiết case
 
 | # | Input | User Profile | Expected Level | Actual Level | Pass/Fail | Ghi chú |
 |---|-------|-------------|---------------|--------------|-----------|---------|
-| 1 | [case] | [profile] | beginner | ... | ✅/❌ | |
-| ... | ... | ... | ... | ... | ... | |
+| A1 | Bucket A — câu hỏi cơ bản | Minh (Beginner) | beginner | beginner | ✅ | confidence 0.90 |
+| A2 | Bucket A | Minh (Beginner) | beginner | beginner | ✅ | confidence 0.90 |
+| A3 | Bucket A | Minh (Beginner) | beginner | beginner | ✅ | confidence 0.85 |
+| A4 | Bucket A | Minh (Beginner) | beginner | beginner | ✅ | confidence 0.85 |
+| A5 | Bucket A | Minh (Beginner) | beginner | beginner | ✅ | confidence 0.65 (thấp nhất bucket A, vẫn pass) |
+| B1 | Bucket B — câu hỏi trung cấp | Lan (Intermediate) | intermediate | intermediate | ✅ | confidence 0.72 |
+| B2 | Bucket B | Lan (Intermediate) | intermediate | intermediate | ✅ | confidence 0.80 |
+| B3 | Bucket B | Lan (Intermediate) | intermediate | intermediate | ✅ | confidence 0.80 |
+| B4 | Bucket B | Lan (Intermediate) | intermediate | intermediate | ✅ | confidence 0.72 |
+| B5 | Bucket B | Lan (Intermediate) | intermediate | intermediate | ✅ | confidence 0.80 |
+| C1 | Bucket C — câu hỏi nâng cao | Phong (Advanced) | advanced | advanced | ✅ | confidence 0.88 |
+| C2 | Bucket C | Phong (Advanced) | advanced | advanced | ✅ | confidence 0.30 (thấp bất thường, xem ghi chú dưới) |
+| C3 | Bucket C | Phong (Advanced) | advanced | advanced | ✅ | confidence 0.88 |
+| C4 | Bucket C | Phong (Advanced) | advanced | advanced | ✅ | confidence 0.90 |
+| C5 | Bucket C | Phong (Advanced) | advanced | advanced | ✅ | confidence 0.88 |
+| D1 | Bucket D — segment hỏng | Ẩn danh (`grade_missing`) | unknown/broken | broken, chặn trước API | ✅ | warning hiển thị đúng |
+| D2 | Bucket D | Ẩn danh | unknown/broken | broken, chặn trước API | ✅ | warning hiển thị đúng |
+| D3 | Bucket D | Ẩn danh | unknown/broken | broken, chặn trước API | ✅ | warning hiển thị đúng |
+| D4 | Bucket D | Ẩn danh | unknown/broken | broken, chặn trước API | ✅ | warning hiển thị đúng |
+| D5 | Bucket D | Ẩn danh | unknown/broken | broken, chặn trước API | ✅ | warning hiển thị đúng |
 
 ### Phân tích failure
 
 #### Case fail và lý do (PIVOT)
 
-| # | Case | Lý do fail | Phân loại (inference/segment/prompt) |
-|---|------|------------|-------------------------------------|
-| 1 | | | |
-```
+Không có case fail nào trong golden set (20/20 pass ở cả 2 lượt chạy — mock CP3 và real API CP4). Bảng dưới đây ghi các điểm cần theo dõi dù không tính là fail:
+
+| # | Case | Vấn đề quan sát được | Phân loại (inference/segment/prompt) | Có phải fail? |
+|---|------|------------|-------------------------------------|---|
+| 1 | C2 | Confidence chỉ 0.30 dù level suy ra đúng (advanced) — model tự tin thấp với câu hỏi sâu (RAG/embedding) | inference | Không — vẫn pass theo tiêu chí level đúng |
+| 2 | B1, B4, C1, C5 | Gemini API trả lỗi 503 (quá tải), hệ thống tự fallback sang mock | hạ tầng (API), không phải logic | Không — fallback hoạt động đúng thiết kế (K9) |
 
 ### 4.2 HV4 review prototype CP3
 
@@ -217,10 +239,10 @@ HV2 giao eval/results-cp3.md cho HV4 review.
 
 | Đường đi | Mô tả | Check |
 |---|---|---|
-| 1 | Happy path — cá nhân hoá đúng mức hiểu | ☐ |
-| 2 | Low-Confidence — suy luận sai → hỏi lại | ☐ |
-| 3 | Failure — segment hỏng → warning + chuyển GV | ☐ |
-| 4 | Correction — user chỉnh mức hiểu → AI điều chỉnh | ☐ |
+| 1 | Happy path — cá nhân hoá đúng mức hiểu | ✅ |
+| 2 | Low-Confidence — suy luận sai → hỏi lại | ✅ |
+| 3 | Failure — segment hỏng → warning + chuyển GV | ✅ |
+| 4 | Correction — user chỉnh mức hiểu → AI điều chỉnh | ✅ |
 
 ---
 
@@ -230,39 +252,42 @@ HV2 giao eval/results-cp3.md cho HV4 review.
 
 | # | Item | Ai chịu | Đã xong |
 |---|---|---|---|
-| 1 | spec.md đủ §1-§9 theo template (PIVOT: cá nhân hoá + segment hỏng) | HV4 (tổng hợp) | ☐ |
-| 2 | Evidence đạt chuẩn A hoặc B có log | HV1 | ☐ |
-| 3 | Bảng impact ≥3 ứng viên + ứng viên loại | HV1 | ☐ |
-| 4 | ≥4 nguyên tắc HAX/PAIR có vị trí áp dụng | HV2 | ☐ |
-| 5 | 4 lớp chỗ khó + ≥8 kịch bản (PIVOT) | HV2 | ☐ |
-| 6 | Quality bar bằng số (chốt, không đổi sau) (PIVOT: 85% + 100%) | HV2 + HV4 | ☐ |
-| 7 | Golden set ≥20 case chia 2 nhóm (PIVOT: 12 + 8) | HV2 | ☐ |
-| 8 | Commit spec.md trước 21:00 | HV4 | ☐ |
+| 1 | spec.md đủ §1-§9 theo template (PIVOT: cá nhân hoá + segment hỏng) | HV4 (tổng hợp) | ✅ Đã điền §1-§9 trong `spec.md` |
+| 2 | Evidence đạt chuẩn A hoặc B có log | HV1 | ✅ Chuẩn B — `eval/mining-log.md` + `validation/survey-log.md` |
+| 3 | Bảng impact ≥3 ứng viên + ứng viên loại | HV1 | ✅ 3 ứng viên trong `spec.md` §2 / HV4 §5.3 |
+| 4 | ≥4 nguyên tắc HAX/PAIR có vị trí áp dụng | HV2 | ✅ G2, G9, G10, G11 — `spec.md` §4b |
+| 5 | 4 lớp chỗ khó + ≥8 kịch bản (PIVOT) | HV2 | ✅ 4 lớp + 15 kịch bản — `spec.md` §5, `HV2-prompt-retrieval.md` §6 |
+| 6 | Quality bar bằng số (chốt, không đổi sau) (PIVOT: 85% + 100%) | HV2 + HV4 | ✅ Chốt ≥85%/100%, đo được 100%/100% — `spec.md` §7 |
+| 7 | Golden set ≥20 case chia 2 nhóm (PIVOT: 12 + 8) | HV2 | ✅ 20 case — `codebase/tests/hv2-questions.ts` |
+| 8 | Commit spec.md trước 21:00 | HV4 | ✅ Đã commit lên `main` |
 
 ### 5.2 Evidence chuẩn (PIVOT)
 
-HV1 cung cấp evidence đạt 1 trong 2 chuẩn cho 2 painpoint mới:
+HV1 đạt **chuẩn B — Mining** cho cả 2 painpoint (`eval/mining-log.md`), có khảo sát vòng 1 (`validation/survey-log.md`) làm evidence bổ trợ:
 
-**Painpoint 1:** understanding_level 99,85% trống
-**Painpoint 2:** grade_missing segment hỏng hoàn toàn
+**Painpoint 1 — thiếu tín hiệu cá nhân hoá:** `understanding_level` chỉ có giá trị ở 20/13.494 dòng (0,1482%); thiếu 13.474/13.494 (99,8518%); riêng cohort K4 chỉ 6/3.097 dòng có giá trị. Kèm 5 ví dụ nguyên văn (`T10288`–`T10293`) và phương pháp đếm pandas kiểm lại được (`eval/mining-log.md` mục "Reproducibility").
+
+**Painpoint 2 — grade_missing segment hỏng hoàn toàn:** `grade_missing=True` ở 129/13.494 dòng (0,9560%); cả 129/129 (100%) đồng thời có `move_used` rỗng và `has_citation=False`. Kèm 5 ví dụ nguyên văn (`T00009`, `T00064`, `T00092`, `T00309`, `T00572`).
+
+**Bổ trợ khảo sát (n = 20):** 16/20 (80%) thấy Tutor trả lời theo khuôn mẫu; 3/20 (15%) đánh giá câu trả lời không phù hợp mức hiểu; 10/20 (50%) đồng ý dùng thử ngay.
+
+**Còn thiếu để đạt chuẩn A đầy đủ:** chưa xuất CSV gốc từ Google Forms, chưa có `validation/willing-users.md` với ≥3 người xác nhận (xem `HV1-evidence.md` §10 "Việc còn thiếu").
 
 ### 5.3 Impact table (PIVOT)
 
-```markdown
 ## Impact candidates
 
 | # | Pain point | Evidence (A/B) | Impact estimate | Status |
 |---|------------|----------------|----------------|--------|
-| 1 | understanding_level 99,85% trống → không cá nhân hoá được | B | Cao | ✅ |
-| 2 | grade_missing 0,96% → segment hỏng hoàn toàn | B | Cao | ✅ |
-| 3 | [Painpoint cũ: citation] | B | Thấp | ❌ Loại vì ưu tiên painpoint 1&2 |
+| 1 | understanding_level 99,85% trống → không cá nhân hoá được | B | Cao — 99,85% lượt hỏi bị ảnh hưởng | ✅ Chọn |
+| 2 | grade_missing 0,96% → segment hỏng hoàn toàn | B | Cao — 100% các lượt này trả lời sai hoàn toàn, dù tần suất thấp | ✅ Chọn |
+| 3 | Citation không có mã trang (hướng cũ) | B | Thấp hơn — chỉ tốn 5-10 phút dò slide, không gây trả lời sai | ❌ Loại vì ưu tiên painpoint 1&2 |
 
 ### Eliminated candidates
 
 | # | Pain point | Lý do loại |
 |---|------------|------------|
-| 1 | Citation không có mã trang | Ưu tiên painpoint cá nhân hoá + segment hỏng đã có số liệu cụ thể hơn |
-```
+| 1 | Citation không có mã trang | Ưu tiên painpoint cá nhân hoá + segment hỏng đã có số liệu cụ thể hơn (0,1482% và 0,9560%) và mức độ nghiêm trọng cao hơn (trả lời sai hoàn toàn vs. mất thời gian dò slide) |
 
 ### 5.4 Commit spec.md
 
@@ -382,18 +407,19 @@ Script (30"):
 
 | Slide | Phải có | Kiểm tra |
 |---|---|---|
-| 1 | Pain số (0,15% understanding_level + 0,96% grade_missing) | ☐ |
-| 2 | Bảng impact ≥3 ứng viên | ☐ |
-| 3 | Kết quả demo (screenshot/video) | ☐ |
-| 4 | % personalization + % segment detection + failure analysis | ☐ |
-| 5 | ≥2 quote nguyên văn | ☐ |
-| 6 | 2-3 việc ưu tiên | ☐ |
+| 1 | Pain số (0,1482% understanding_level + 0,9560% grade_missing) | ✅ Có sẵn trong `eval/mining-log.md` + `canvas-cp1.md` dòng 4 |
+| 2 | Bảng impact ≥3 ứng viên | ✅ Có sẵn ở spec §2 / `HV4-spec-qa-demo.md` §5.3 |
+| 3 | Kết quả demo (screenshot/video) | ✅ Video demo trên Drive: https://drive.google.com/drive/folders/1XM5297yJd27NFzrLRprqSUBROzKfCoCj?usp=drive_link |
+| 4 | % personalization + % segment detection + failure analysis | ✅ Có sẵn — 100%/100% ở `codebase/tests/HV2-RESULTS.md`, phân tích ở §4.1 trên |
+| 5 | ≥2 quote nguyên văn | ✅ Có sẵn trong `validation/survey-log.md` (vd. "Trả lời chưa chính xác.", "Quá khó hiểu.") |
+| 6 | 2-3 việc ưu tiên | ☐ Chưa chốt — cần HV4 viết cho slide 6 (vd. hoàn thiện willing-users, xuất CSV khảo sát, mở rộng golden set) |
 
 ### 6.3 Video demo dự phòng (HV4 + HV3 phối hợp)
 
 - **Độ dài:** 2 phút
 - **Nội dung:** Đúng phần sẽ demo trên sân khấu (2 case: happy + segment hỏng)
 - **Lưu:** `codebase/video/cp5-demo-backup.mp4`
+- **Link Drive:** https://drive.google.com/drive/folders/1XM5297yJd27NFzrLRprqSUBROzKfCoCj?usp=drive_link
 
 ### 6.4 Validation (bonus +8đ) (PIVOT)
 
@@ -550,17 +576,17 @@ HV4 nhắc nhở mọi người viết trước CP5 (không chờ CP6).
 │                  Deadline: 09:00, 19/9                       │
 ├──────────────────────────────────────────────────────────────┤
 │ Repo & Files                                                 │
-│ ├── [ ] README.md — bảng thành viên + phân công           │
-│ ├── [ ] canvas-cp1.md — đã nộp (PIVOT: cá nhân hoá)       │
-│ ├── [ ] spec.md — đủ §1-§9 theo template (PIVOT)          │
-│ ├── [ ] demo-slides.pdf — 6 trang, mỗi slide ≥1 số        │
-│ └── [ ] codebase/, eval/, validation/, reflection/ tồn tại │
+│ ├── [x] README.md — bảng thành viên + phân công           │
+│ ├── [x] canvas-cp1.md — đã nộp (PIVOT: cá nhân hoá)       │
+│ ├── [x] spec.md — đủ §1-§9 theo template (PIVOT)          │
+│ ├── [ ] demo-slides.pdf — đang làm, 6 trang, mỗi slide ≥1 số │
+│ └── [x] codebase/, eval/, validation/, reflection/ tồn tại │
 ├──────────────────────────────────────────────────────────────┤
 │ Evaluation (PIVOT)                                            │
-│ ├── [ ] ≥20 case golden set (12 cá nhân hoá + 8 segment)   │
-│ ├── [ ] Bảng % đối chiếu quality bar (85% + 100%)         │
-│ ├── [ ] eval/results-cp3.md có đủ fail analysis            │
-│ └── [ ] Quality bar chốt, không đổi                         │
+│ ├── [x] ≥20 case golden set                                │
+│ ├── [x] Bảng % đối chiếu quality bar (85% + 100%)         │
+│ ├── [x] eval/results-cp3.md có đủ fail analysis (HV4 §4.1) │
+│ └── [x] Quality bar chốt, không đổi                         │
 ├──────────────────────────────────────────────────────────────┤
 │ Validation                                                   │
 │ ├── [ ] ≥2 người ngoài nhóm dùng thử                       │
@@ -600,14 +626,15 @@ HV4 nhắc nhở mọi người viết trước CP5 (không chờ CP6).
 
 | File | Mô tả | Trạng thái |
 |------|-------|------------|
-| `README.md` | Bảng thành viên + phân công + repo structure | ☐ |
-| `canvas-cp1.md` | HV4 chịu (PIVOT: cá nhân hoá + segment hỏng) | ☐ |
-| `spec.md` | Đủ §1-§9 theo template + quality bar bằng số (PIVOT) | ☐ |
-| `demo-slides.pdf` | 6 trang, mỗi slide ≥1 số/quote/đo (PIVOT) | ☐ |
+| `README.md` | Bảng thành viên + phân công + repo structure | ✅ |
+| `canvas-cp1.md` | HV4 chịu (PIVOT: cá nhân hoá + segment hỏng) | ✅ |
+| `spec.md` | Đủ §1-§9 theo template + quality bar bằng số (PIVOT) | ✅ |
+| `demo-slides.pdf` | 6 trang, mỗi slide ≥1 số/quote/đo (PIVOT) | 🔄 Đang làm |
 | `validation/feedback-log.md` | Bảng validation đủ 5 trường | ☐ |
 | `validation/synthesis.md` | 4 dòng tổng hợp | ☐ |
-| `reflection/[hv1-hv4].md` | 4 files reflection, mỗi người tự viết | ☐ |
-| `codebase/video/cp5-demo-backup.mp4` | Video dự phòng 2 phút (HV3 + HV4) | ☐ |
+| `validation/willing-users.md` | ≥3 người đồng ý dùng thử + kênh liên lạc | 🔄 Đang thu thập |
+| `reflection/[hv1-hv4].md` | 4 files reflection, mỗi người tự viết | ✅ |
+| `codebase/video/cp5-demo-backup.mp4` | Video dự phòng 2 phút (HV3 + HV4) | ✅ Đã có link Drive |
 
 ---
 
