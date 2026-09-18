@@ -15,7 +15,7 @@
 
 3. **Pain 1 câu:** Học viên K4 hỏi tutor để làm rõ đoạn vừa bôi đen · nhận câu trả lời không phù hợp trình độ (đôi khi quá dễ, đôi khi quá khó) hoặc không có căn cứ để trả lời · học sai kiến thức hoặc mất thời gian hỏi lại nhiều lần. *(PIVOT: 2 pain gộp 1)*
 
-4. **Evidence đầu:** **HV1 mining (17/9):** Painpoint 1 — Cột `understanding_level` chỉ có 20/13.494 dòng (0,15%) có giá trị → tutor không cá nhân hoá được. Painpoint 2 — Cột `grade_missing`: 129/13.494 dòng (0,96%) → TOÀN BỘ 129 dòng có `move_used` rỗng VÀ `has_citation=False` 100% → segment "hỏng hoàn toàn". Chi tiết: `HV1-evidence.md` §2.2. *(PIVOT: 2 painpoint mới + số liệu cụ thể)*
+4. **Evidence đầu:** **HV1 mining (18/9):** Painpoint 1 — Cột `understanding_level` chỉ có 20/13.494 dòng (0,1482%) có giá trị; 13.474/13.494 dòng (99,8518%) thiếu, riêng K4 chỉ 6/3.097 có giá trị. Painpoint 2 — `grade_missing=True` ở 129/13.494 dòng (0,9560%); cả 129/129 (100%) đều `move_used` rỗng và `has_citation=False`. Khảo sát vòng 1 có 20 phản hồi: 16/20 (80%) cảm thấy Tutor trả lời theo khuôn mẫu; 3/20 (15%) đánh giá câu trả lời không phù hợp mức hiểu. Chi tiết: `eval/mining-log.md`, `validation/survey-log.md`, `HV1-evidence.md` §10. *(PIVOT: số liệu đã chạy lại)*
 
 5. **Lát cắt 1 câu:** Học viên K4 hỏi tutor · AI suy ra mức hiểu của học viên từ lịch sử tương tác (không dựa vào cột `understanding_level` đang trống 99,85%) → điều chỉnh độ sâu/độ khó câu trả lời · ĐỒNG THỜI nếu phát hiện thuộc nhóm không có điểm / không có dữ liệu đầu vào rõ ràng → nói rõ giới hạn và đề xuất hỏi giảng viên thay vì bịa. *(PIVOT: slice mới — cá nhân hoá + phát hiện segment hỏng)*
 
