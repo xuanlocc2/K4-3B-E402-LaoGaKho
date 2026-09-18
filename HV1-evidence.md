@@ -374,28 +374,28 @@ Với mỗi ứng viên, điền:
 
 ### Sau CP1 (19:30 · 17/9)
 
-- [ ] Đã đọc ≥30 mẫu tutor_turns
-- [ ] Đã chạy pandas đếm understanding_level (có số cụ thể)
-- [ ] Đã chạy pandas đếm grade_missing (có số cụ thể)
-- [ ] Đã trích ≥5 ví dụ grade_missing (segment hỏng)
-- [ ] Đã trích ≥5 ví dụ tutor không cá nhân hoá
-- [ ] Đã khảo sát ≥10 người (CP1)
-- [ ] Đã ghi log đầy đủ: câu hỏi + câu trả lời nguyên văn
-- [ ] Đã hỏi và có ≥3 willing users đồng ý thử
-- [ ] Đã update `canvas-cp1.md` dòng 4 với số mới nhất
+- [x] Đã đọc ≥30 mẫu tutor_turns
+- [x] Đã chạy pandas đếm understanding_level (có số cụ thể)
+- [x] Đã chạy pandas đếm grade_missing (có số cụ thể)
+- [x] Đã trích ≥5 ví dụ grade_missing (segment hỏng)
+- [x] Đã trích ≥5 ví dụ thiếu tín hiệu để cá nhân hoá
+- [x] Đã khảo sát ≥10 người (CP1)
+- [x] Đã ghi survey log và các quote ngắn đã xác minh từ bảng phản hồi
+- [ ] Đã hỏi và có ≥3 willing users đồng ý thử — tạm bỏ qua theo yêu cầu nhóm
+- [x] Đã update `canvas-cp1.md` dòng 4 với số mới nhất
 
 ### Sau CP4 (21:00 · 18/9) — Trước Hạn Chốt Spec
 
-- [ ] Đã đọc ≥50 mẫu tutor_turns
-- [ ] Đã chạy pandas đếm cả 2 painpoint (≥2 cách đếm khác nhau)
-- [ ] Đã trích ≥5 ví dụ mỗi painpoint (tối đa 2 câu mỗi cái)
-- [ ] Đã khảo sát ≥20 người (CP4)
-- [ ] Đã ghi log đầy đủ câu hỏi + câu trả lời cho mọi người
-- [ ] Đã có ≥3 willing users (tên + vai + kênh liên lạc)
-- [ ] Đã viết xong `mining-log.md` hoặc `survey-log.md`
-- [ ] Đã viết xong `willing-users.md`
-- [ ] Đã update `canvas-cp1.md` dòng 4 với số mới nhất
-- [ ] Đã điền bảng impact ≥3 ứng viên (có lý do loại)
+- [x] Đã đọc ≥50 mẫu tutor_turns
+- [x] Đã chạy pandas đếm cả 2 painpoint (≥2 cách đếm khác nhau)
+- [x] Đã trích ≥5 ví dụ mỗi painpoint (tối đa 2 câu mỗi cái)
+- [x] Đã khảo sát ≥20 người (CP4)
+- [ ] Đã ghi log đầy đủ câu hỏi + câu trả lời cho mọi người — cần xuất CSV để audit đầy đủ
+- [ ] Đã có ≥3 willing users (tên + vai + kênh liên lạc) — tạm bỏ qua
+- [x] Đã viết xong `mining-log.md` và `survey-log.md`
+- [ ] Đã viết xong `willing-users.md` — tạm bỏ qua
+- [x] Đã update `canvas-cp1.md` dòng 4 với số mới nhất
+- [ ] Đã điền bảng impact ≥3 ứng viên (cần nhóm hoàn thiện trong spec)
 
 ---
 
@@ -512,6 +512,52 @@ K4-3B-E402-CiteTutor/
 | Painpoint 2 | Không có | Grade missing: 129 dòng hỏng hoàn toàn |
 | Khảo sát | "Biết trang nào không?" | "Phù hợp trình độ không?" + "Vô lý không?" |
 | Impact table | Citation là ưu tiên | Cá nhân hoá + segment hỏng là ưu tiên |
+
+---
+
+## 10. Kết Quả Khảo Sát Đã Thu (Vòng 1)
+
+> Cập nhật từ bảng phản hồi Google Forms ngày 17/9/2026. Phần này ghi nhận số liệu nhìn thấy được trong bảng hiện tại; chưa thay thế `validation/survey-log.md`, vì cần giữ bản xuất CSV và log đầy đủ theo từng người.
+
+### Quy mô và kết quả chính
+
+- Tổng số phản hồi: **20**.
+- Câu hỏi về mức phù hợp của câu trả lời:
+   - **4/20 (20%)**: hoàn toàn phù hợp.
+   - **11/20 (55%)**: khá phù hợp.
+   - **3/20 (15%)**: không phù hợp, gồm 2 người thấy quá khó và 1 người thấy quá dễ.
+   - **2/20 (10%)**: không chắc hoặc không nhớ.
+- Câu hỏi về câu trả lời theo khuôn mẫu:
+   - **16/20 (80%)** trả lời “Có”.
+   - **2/20 (10%)** trả lời “Không”.
+   - **2/20 (10%)** trả lời “Không chắc”.
+- Câu hỏi sẵn sàng dùng thử:
+   - **10/20 (50%)** đồng ý dùng thử.
+   - **7/20 (35%)** muốn biết thêm trước khi quyết định.
+   - **3/20 (15%)** không đồng ý.
+
+### Diễn giải được phép dùng
+
+Kết quả vòng 1 cho thấy tín hiệu đáng chú ý: **80% người trả lời cảm thấy Tutor thường trả lời theo khuôn mẫu giống nhau**, và **15% trực tiếp đánh giá câu trả lời gần đây không phù hợp với mức hiểu**. Có **10 người đồng ý dùng thử** và 7 người cần biết thêm. Đây là evidence ban đầu để tiếp tục kiểm chứng pain “chưa cá nhân hoá”, chưa phải bằng chứng rằng mọi câu trả lời đều sai.
+
+Các phản hồi mô tả đã xuất hiện những tín hiệu cần phân loại trong log: trả lời chưa chính xác, không trả lời đúng câu hỏi, quá khó hiểu, không trích được nội dung từ PDF/video và giải thích chưa rõ. Không được gộp tất cả thành “pain” nếu chưa lưu câu trả lời nguyên văn và mã người trả lời.
+
+### Việc còn thiếu để đạt chuẩn R1
+
+- [ ] Xuất Google Forms ra **CSV**, lưu bản làm việc ngoài repo public hoặc chỉ lưu bản đã ẩn danh.
+- [ ] Gán mã `HV01`–`HV20`; không đưa email/số điện thoại vào repo public.
+- [ ] Tạo `validation/survey-log.md` với câu hỏi nguyên văn và câu trả lời của từng người.
+- [ ] Với mỗi câu trả lời mở, giữ quote ngắn nguyên văn và không vượt quá 2 câu.
+- [ ] Xác định rõ quy tắc “xác nhận pain”: nên tính nhóm trả lời “Không phù hợp” cho pain mức hiểu; nhóm “Có” ở câu khuôn mẫu cho pain thiếu cá nhân hoá.
+- [ ] Hỏi bổ sung ít nhất 3 willing users có tên/mã, vai trò và kênh liên hệ được ẩn danh phù hợp.
+- [ ] Chạy mining trên `tutor_turns.csv` để điền số thật cho `understanding_level` và `grade_missing`; khảo sát không thay thế mining.
+- [ ] Cập nhật `canvas-cp1.md` và `spec.md §1-§2` bằng cùng một bộ số liệu.
+
+### Kết luận trạng thái
+
+**CP1:** Có thể báo cáo đã có 20 phản hồi và evidence ban đầu về vấn đề trả lời theo khuôn mẫu.
+**CP4:** Chưa thể tuyên bố đã đạt chuẩn khảo sát A chỉ từ ảnh chụp hiện tại; cần CSV/log từng người và hoàn thành mining chuẩn B.
+**R6:** Các tên hoặc liên hệ nhìn thấy trong bảng chỉ là tín hiệu willing user; cần xác nhận rõ họ đã đồng ý dùng thử và lưu vào `validation/willing-users.md` theo nguyên tắc bảo mật.
 
 ---
 
