@@ -1,12 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import UnderstandingBadge from './UnderstandingBadge';
 import TutorResponse from './TutorResponse';
 import SegmentWarning from './SegmentWarning';
 import type { ChatMessage, TutorResponse as TutorResponseType } from '../types';
-import type { Level } from '../types';
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -21,10 +18,6 @@ export interface ChatBoxProps {
   selectedText: string;
   /** Latest Gemini response (null before first call). */
   lastResponse: TutorResponseType | null;
-  /** Heuristic level from inference.ts (used for header badge before first call). */
-  inferenceLevel: Level;
-  /** Heuristic confidence from inference.ts. */
-  inferenceConfidence: number;
   /** True while a Gemini call is in flight. */
   isLoading: boolean;
   /** Called when user clicks "Hỏi tutor" (i.e. requests a new tutor question). */
@@ -40,8 +33,6 @@ export default function ChatBox({
   history,
   selectedText: _selectedText,
   lastResponse,
-  inferenceLevel,
-  inferenceConfidence,
   isLoading,
   onAskTutor,
   onEditLevel,
@@ -73,15 +64,11 @@ export default function ChatBox({
     }
   };
 
-  // ── Derive which badge to show ─────────────────────────────────────────────
-  const badgeLevel = lastResponse?.level ?? inferenceLevel;
-  const badgeConfidence = lastResponse?.confidence ?? inferenceConfidence;
-
   // ── Render ──────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col h-full bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-      {/* Header: persona name + level badge */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+      {/* Header: persona name only — level badge lives at bottom of each tutor message */}
+      <div className="flex items-center px-4 py-3 border-b border-border shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm">
             💬
@@ -95,11 +82,6 @@ export default function ChatBox({
             </span>
           </div>
         </div>
-        <UnderstandingBadge
-          level={badgeLevel}
-          confidence={badgeConfidence}
-          onEdit={onEditLevel}
-        />
       </div>
 
       {/* Messages area */}
@@ -118,11 +100,11 @@ export default function ChatBox({
               <div className="bg-card shadow-sm border border-border px-4 py-3 rounded-xl rounded-tl-sm max-w-[90%]">
                 <div className="flex items-start gap-2.5">
                   <div className="shrink-0 w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-sm leading-none mt-0.5">
-                    🤖
+                    AI
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                      👋 Xin chào! Mình là Tutor VLearn. Bôi đen một đoạn transcript bạn
+                      Xin chào! Mình là Tutor VLearn. Bôi đen một đoạn transcript bạn
                       chưa hiểu, rồi nhấn &ldquo;Hỏi tutor&rdquo; để được giải
                       thích phù hợp với trình độ của bạn.
                     </p>
@@ -137,51 +119,17 @@ export default function ChatBox({
           )}
         </AnimatePresence>
 
-        {/* Conversation history — animated */}
+        {/* Conversation history — animated.
+            ALL tutor responses flow through this loop (single source of truth).
+            The separate lastResponse block has been removed — it caused duplicate
+            renders (Bug #4) and badge inconsistency (Bug #1). */}
         <AnimatePresence mode="popLayout">
           {history.map((msg) => (
-            <TutorResponse key={msg.id} message={msg} />
+            <TutorResponse key={msg.id} message={msg} onEditLevel={onEditLevel} />
           ))}
         </AnimatePresence>
 
-        {/* Tutor response (lastResponse) */}
-        <AnimatePresence mode="wait">
-          {lastResponse && lastResponse.segment === 'normal' && (
-            <motion.div
-              key="last-response"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-              className="flex justify-start"
-            >
-              <div className="bg-card shadow-sm border border-border px-4 py-3 rounded-xl rounded-tl-sm max-w-[92%] w-full">
-                <div className="flex items-start gap-2.5">
-                  <div className="shrink-0 w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-sm leading-none mt-0.5">
-                    🤖
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    {/* Render answer as Markdown */}
-                    <div className="prose prose-sm max-w-none prose-slate text-sm text-foreground [&_p]:mb-2 [&_strong]:font-semibold [&_h3]:text-base [&_h3]:font-semibold [&_h3]:mt-3 [&_li]:mb-1 [&_ul]:pl-4">
-                      <ReactMarkdown>{lastResponse.answer}</ReactMarkdown>
-                    </div>
-
-                    {/* Badge + "Chỉnh mức" link */}
-                    <div className="mt-3 flex items-center gap-3">
-                      <UnderstandingBadge
-                        level={lastResponse.level}
-                        confidence={lastResponse.confidence}
-                        onEdit={onEditLevel}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Broken segment warning */}
+        {/* Broken segment warning — driven by lastResponse, not history */}
         <AnimatePresence mode="wait">
           {lastResponse && lastResponse.segment === 'broken' && (
             <motion.div

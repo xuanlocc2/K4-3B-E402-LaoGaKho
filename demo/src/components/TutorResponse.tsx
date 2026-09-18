@@ -5,18 +5,37 @@ import type { Level } from '../types';
 
 interface TutorResponseProps {
   message: ChatMessage;
-  badgeLevel?: Level;
-  badgeConfidence?: number;
   onEditLevel?: () => void;
+}
+
+/** Parses `**Mức hiểu: ${level}` from the message content. */
+function parseBadgeFromContent(
+  content: string
+): { level: Level; confidence: number } {
+  const levelMatch = content.match(
+    /\*\*Mức hiểu:\s*([^\s*]+)\*\*/i
+  );
+  const confMatch = content.match(/(\d+)%\s*chắc/);
+  const rawLevel = levelMatch?.[1]?.toLowerCase();
+  const confidence = confMatch?.[1] ? parseInt(confMatch[1], 10) / 100 : 0.45;
+  // Only accept values that are valid Level members; fall back to 'beginner'
+  const level: Level =
+    rawLevel === 'beginner' || rawLevel === 'intermediate' || rawLevel === 'advanced'
+      ? rawLevel
+      : 'beginner';
+  return { level, confidence };
 }
 
 export default function TutorResponse({
   message,
-  badgeLevel = 'beginner',
-  badgeConfidence = 0.45,
   onEditLevel,
 }: TutorResponseProps) {
   const isUser = message.role === 'user';
+  // Read badge data from the message itself (baked in by App on creation)
+  const { level: parsedLevel, confidence: parsedConf } =
+    parseBadgeFromContent(message.content);
+  const badgeLevel: Level = message.badgeLevel ?? parsedLevel;
+  const badgeConfidence: number = message.badgeConfidence ?? parsedConf;
 
   return (
     <motion.div
@@ -38,7 +57,7 @@ export default function TutorResponse({
           <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm leading-none mt-0.5 ${
             isUser ? 'bg-primary-foreground/20' : 'bg-primary/10'
           }`}>
-            {isUser ? '👤' : '🤖'}
+            {isUser ? '👤' : 'AI'}
           </div>
 
           <div className="flex-1 min-w-0">
@@ -47,9 +66,9 @@ export default function TutorResponse({
               {message.content}
             </p>
 
-            {/* Understanding badge — shown only for tutor messages */}
+            {/* Understanding badge — shown only once at bottom of tutor messages */}
             {!isUser && (
-              <div className="mt-3">
+              <div className="mt-3 pt-2 border-t border-border/50">
                 <UnderstandingBadge
                   level={badgeLevel}
                   confidence={badgeConfidence}

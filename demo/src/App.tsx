@@ -15,7 +15,7 @@
  *   4. App sets lastResponse → ChatBox re-renders answer
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SlideView from './components/SlideView';
 import ChatBox from './components/ChatBox';
@@ -23,7 +23,6 @@ import PersonaSwitcher from './components/PersonaSwitcher';
 import LevelSelector from './components/LevelSelector';
 import { callGemini } from './lib/gemini';
 import { detectSegment } from './lib/segment-detect';
-import { inferLevel } from './lib/inference';
 import { getMockResponse } from './lib/gemini-mock';
 import type { TutorResponse } from './types';
 import type { ChatMessage } from './types';
@@ -63,7 +62,20 @@ const PERSONA_MAP: Record<string, { id: string; name: string; level: string; his
   },
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Smart text truncation ──────────────────────────────────────────────────
+
+/**
+ * Truncates text at the nearest word boundary, not mid-phrase.
+ * @param text  - input string
+ * @param max   - max characters before truncation
+ * @returns truncated text with ellipsis if needed
+ */
+export function smartTruncate(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const slice = text.slice(0, max);
+  const lastSpace = slice.lastIndexOf(' ');
+  return slice.slice(0, lastSpace > 0 ? lastSpace : max) + '…';
+}
 
 /** Flat transcript text for word-overlap detection. */
 const TRANSCRIPT_TEXT = transcriptData.map((p) => p.text).join(' ');
@@ -79,23 +91,20 @@ export default function App() {
   const [showLevelSelector, setShowLevelSelector] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // ── Ref: always holds current selectedText (survives setState updates) ──────
+  // This fixes Bug #4 — handleLevelSelect reads stale selectedText otherwise,
+  // because setSelectedText('')/setLastResponse(null) run before the async
+  // callGemini completes and the closure captures the old value.
+  const selectedTextRef = useRef<string>('');
+
   // ── Derived: current persona (guaranteed non-null via fallback to 'minh') ──
   const currentPersona = PERSONA_MAP[currentPersonaId] ?? PERSONA_MAP['minh']!;
-
-  // ── Pre-compute understanding inference (for confidence display) ────────────
-  const inference = useMemo(
-    () =>
-      inferLevel(
-        currentPersona.history as Array<{ role: 'user' | 'tutor'; text: string }>
-      ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentPersonaId]
-  );
 
   // ── Handler: "Hỏi tutor" clicked in SlideView ───────────────────────────────
   const handleAskTutor = useCallback(
     async (text: string) => {
       setSelectedText(text);
+      selectedTextRef.current = text;
       setLastResponse(null);
 
       // Step 1: Segment detection (runs synchronously, no API call needed)
@@ -152,24 +161,30 @@ export default function App() {
           setLastResponse(response);
         }
 
-        // Add exchange to chat history
+        // Add exchange to chat history — badge data is embedded on the tutor message
+        // so TutorResponse renders it as a separate badge (not inline in the answer).
+        // The answer text is shown as-is from Gemini — no template wrapper.
         const userMsg: ChatMessage = {
           id: `user-${Date.now()}`,
           role: 'user',
-          content: `Hỏi về: "${text.slice(0, 80)}${text.length > 80 ? '…' : ''}"`,
+          content: `Hỏi về: "${smartTruncate(text, 80)}"`,
         };
         const tutorMsg: ChatMessage = {
           id: `tutor-${Date.now()}`,
           role: 'tutor',
-          content:
-            `**Mức hiểu: ${response.level}** (${Math.round(response.confidence * 100)}% chắc)\n\n` +
-            response.answer,
+          content: response.answer,
+          badgeLevel: response.level as 'beginner' | 'intermediate' | 'advanced',
+          badgeConfidence: response.confidence,
         };
         setHistory((prev) => [...prev, userMsg, tutorMsg]);
       } catch (err) {
         // Graceful degradation — never let an error crash the UI
         console.error('[App] Unexpected error in handleAskTutor:', err);
-        const fallback = getMockResponse(currentPersona.id, text);
+        const fallback = getMockResponse(
+          currentPersona.id,
+          text,
+          currentPersona.history.length
+        );
         setLastResponse(fallback);
       } finally {
         setIsLoading(false);
@@ -197,14 +212,14 @@ export default function App() {
   const handleLevelSelect = useCallback(
     async (level: string) => {
       setShowLevelSelector(false);
-      if (level === overrideLevel) return;
-
       setOverrideLevel(level);
       setIsLoading(true);
 
       try {
+        // Use selectedTextRef so we always have the latest text, even if
+        // App state was reset (Bug #4 fix).
         const response = await callGemini(
-          selectedText,
+          selectedTextRef.current,
           currentPersona.history as Array<{ role: 'user' | 'tutor'; text: string }>,
           currentPersona.id,
           currentPersona.name,
@@ -212,10 +227,14 @@ export default function App() {
         );
         setLastResponse(response);
 
+        // Append a new tutor message with the re-generated answer.
+        // The answer text is shown as-is from Gemini — no inline level header.
         const noteMsg: ChatMessage = {
           id: `note-${Date.now()}`,
           role: 'tutor',
-          content: `*(User manually set level → **${level}**, re-calling Gemini)*`,
+          content: response.answer,
+          badgeLevel: response.level as 'beginner' | 'intermediate' | 'advanced',
+          badgeConfidence: response.confidence,
         };
         setHistory((prev) => [...prev, noteMsg]);
       } catch (err) {
@@ -224,7 +243,7 @@ export default function App() {
         setIsLoading(false);
       }
     },
-    [currentPersona, selectedText, overrideLevel]
+    [currentPersona]
   );
 
   // ── Derived: dev-mode banner ───────────────────────────────────────────────
@@ -300,8 +319,6 @@ export default function App() {
             history={history}
             selectedText={selectedText}
             lastResponse={lastResponse}
-            inferenceLevel={inference.level}
-            inferenceConfidence={inference.confidence}
             isLoading={isLoading}
             onAskTutor={handleAskTutor}
             onEditLevel={handleEditLevel}

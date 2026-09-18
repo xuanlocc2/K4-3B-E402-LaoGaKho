@@ -7,11 +7,20 @@
 
 /**
  * A single message in the chat panel.
+ * badgeLevel and badgeConfidence are embedded on tutor-role messages
+ * so TutorResponse renders a single authoritative badge — no prop-drilling needed.
  */
 export interface ChatMessage {
   id: string;
   role: 'user' | 'tutor';
   content: string;
+  /**
+   * Understanding level shown in the badge (tutor messages only).
+   * 'unknown' is excluded — broken-segment responses never appear in the chat history.
+   */
+  badgeLevel?: 'beginner' | 'intermediate' | 'advanced';
+  /** Confidence shown next to the badge (tutor messages only, 0–1). */
+  badgeConfidence?: number;
 }
 
 /**

@@ -20,16 +20,29 @@ export interface SlideViewProps {
 export default function SlideView({ personaId: _personaId, onAskTutor }: SlideViewProps) {
   const [selectedText, setSelectedText] = useState<string>('');
 
-  /**
-   * Reads `window.getSelection()` on mouse-up and updates local state.
-   * Trimmed to avoid capturing trailing whitespace.
-   */
-  const handleMouseUp = useCallback(() => {
-    const selection = window.getSelection();
-    if (!selection) return;
-    const text = selection.toString().trim();
-    setSelectedText(text);
-  }, []);
+/**
+ * Reads `window.getSelection()` on mouse-up and updates local state.
+ * Trimmed to avoid capturing trailing whitespace.
+ */
+const handleMouseUp = useCallback(() => {
+  const selection = window.getSelection();
+  if (!selection) return;
+  const text = selection.toString().trim();
+  setSelectedText(text);
+}, []);
+
+/**
+ * Truncates text at the nearest word boundary, not mid-phrase.
+ * @param text  - input string
+ * @param max   - max characters before truncation
+ * @returns truncated text with ellipsis if needed
+ */
+function smartTruncate(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const slice = text.slice(0, max);
+  const lastSpace = slice.lastIndexOf(' ');
+  return slice.slice(0, lastSpace > 0 ? lastSpace : max) + '…';
+}
 
   /**
    * Clears the local selection (so a new selection can be started).
@@ -67,8 +80,7 @@ export default function SlideView({ personaId: _personaId, onAskTutor }: SlideVi
           >
             <div className="flex items-center gap-2 px-4 py-2.5">
               <span className="text-xs text-amber-700 italic truncate flex-1 leading-relaxed">
-                &ldquo;{selectedText.slice(0, 80)}
-                {selectedText.length > 80 ? '…' : ''}&rdquo;
+                &ldquo;{smartTruncate(selectedText, 80)}&rdquo;
               </span>
               <button
                 onClick={handleAskTutor}

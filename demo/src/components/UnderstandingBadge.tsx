@@ -1,13 +1,13 @@
-import { motion } from 'framer-motion';
-import { CircleDot } from 'lucide-react';
-
 /**
- * UnderstandingBadge — displays the inferred understanding level
- * with a color-coded badge: 🟢 Beginner / 🟡 Intermediate / 🔴 Advanced.
+ * UnderstandingBadge — compact display of the inferred understanding level.
  *
- * @see HV3 §4 Component 1
+ * Design principles:
+ * - Small and unobtrusive — does NOT dominate the answer area
+ * - Level name visible but muted, not a large header
+ * - Confidence percentage tiny and grayed out
+ * - Only shown once at the BOTTOM of a tutor response
  *
- * Variants:
+ * Color coding:
  * - beginner  → emerald / green
  * - intermediate → amber / yellow
  * - advanced → rose / red
@@ -60,29 +60,24 @@ export default function UnderstandingBadge({
 
   return (
     <div className="flex items-center gap-2">
-      <motion.span
-        key={`badge-${level}`}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-transparent"
+      <span
+        className="inline-flex items-center gap-1 text-xs text-muted-foreground"
         data-level={level}
       >
-        <CircleDot className={`w-3 h-3 shrink-0 ${config.dotColor.replace('bg-', 'text-')}`} />
-        <span className={`shrink-0 w-1.5 h-1.5 rounded-full ${config.dotColor}`} />
+        <span className={`w-1.5 h-1.5 rounded-full ${config.dotColor}`} />
         {config.label}
-      </motion.span>
+      </span>
 
       {confidence !== undefined && (
-        <span className="text-xs text-muted-foreground">
-          {Math.round(confidence * 100)}% chắc
+        <span className="text-[10px] text-slate-400 tabular-nums">
+          {Math.round(confidence * 100)}%
         </span>
       )}
 
       {onEdit && (
         <button
           onClick={onEdit}
-          className="text-xs text-primary hover:text-primary/80 hover:underline transition-colors"
+          className="text-[11px] text-slate-400 hover:text-slate-600 hover:underline transition-colors"
         >
           Chỉnh mức
         </button>
