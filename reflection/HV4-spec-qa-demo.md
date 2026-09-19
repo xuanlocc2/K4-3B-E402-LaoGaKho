@@ -579,7 +579,7 @@ HV4 nhắc nhở mọi người viết trước CP5 (không chờ CP6).
 │ ├── [x] README.md — bảng thành viên + phân công           │
 │ ├── [x] canvas-cp1.md — đã nộp (PIVOT: cá nhân hoá)       │
 │ ├── [x] spec.md — đủ §1-§9 theo template (PIVOT)          │
-│ ├── [ ] demo-slides.pdf — đang làm, 6 trang, mỗi slide ≥1 số │
+│ ├── [x] demo-slides.pdf — 6 trang, mỗi slide ≥1 số        │
 │ └── [x] codebase/, eval/, validation/, reflection/ tồn tại │
 ├──────────────────────────────────────────────────────────────┤
 │ Evaluation (PIVOT)                                            │
@@ -629,10 +629,10 @@ HV4 nhắc nhở mọi người viết trước CP5 (không chờ CP6).
 | `README.md` | Bảng thành viên + phân công + repo structure | ✅ |
 | `canvas-cp1.md` | HV4 chịu (PIVOT: cá nhân hoá + segment hỏng) | ✅ |
 | `spec.md` | Đủ §1-§9 theo template + quality bar bằng số (PIVOT) | ✅ |
-| `demo-slides.pdf` | 6 trang, mỗi slide ≥1 số/quote/đo (PIVOT) | 🔄 Đang làm |
-| `validation/feedback-log.md` | Bảng validation đủ 5 trường | ☐ |
-| `validation/synthesis.md` | 4 dòng tổng hợp | ☐ |
-| `validation/willing-users.md` | ≥3 người đồng ý dùng thử + kênh liên lạc | 🔄 Đang thu thập |
+| `demo-slides.pdf` | 6 trang, mỗi slide ≥1 số/quote/đo (PIVOT) | ✅ |
+| `validation/feedback-log.md` | Bảng validation đủ 5 trường | ✅ |
+| `validation/synthesis.md` | 4 dòng tổng hợp | ✅ |
+| `validation/willing-users.md` | ≥3 người đồng ý dùng thử + kênh liên lạc | ✅ Đủ 3/3 người |
 | `reflection/[hv1-hv4].md` | 4 files reflection, mỗi người tự viết | ✅ |
 | `codebase/video/cp5-demo-backup.mp4` | Video dự phòng 2 phút (HV3 + HV4) | ✅ Đã có link Drive |
 

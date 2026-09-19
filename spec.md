@@ -92,7 +92,7 @@ Ngoài ra hệ thống còn xử lý các kịch bản hạ tầng: K9 (Gemini A
   - HV2 — Prompt/Retrieval: logic suy luận mức hiểu (`inference.ts`) + phát hiện segment hỏng (`segment-detect.ts`) + prompt Gemini + golden set 20 case + 15 kịch bản rủi ro.
   - HV3 — Prototype: build 4 đường đi (Happy/Low-Confidence/Failure/Correction), UI badge mức hiểu + warning segment hỏng, video demo.
   - HV4 — Spec/QA/Demo: spec.md §1-§9, tổng hợp quality bar, slide, validation, reflection.
-- Willing users + kế hoạch vòng validation *(bonus)*: khảo sát vòng 1 ghi nhận 10/20 người đồng ý dùng thử ngay và 7/20 muốn biết thêm (`validation/survey-log.md`); danh sách willing users chính thức (tên/mã + kênh liên lạc) **đang được thu thập** — hoàn thiện `validation/willing-users.md` với ≥3 người trước CP5 theo `HV1-evidence.md` §5.
+- Willing users + kế hoạch vòng validation *(bonus)*: khảo sát vòng 1 ghi nhận 10/20 người đồng ý dùng thử ngay và 7/20 muốn biết thêm (`validation/survey-log.md`); đã chốt đủ 3 willing users chính thức (tên + vai + kênh liên lạc) trong `validation/willing-users.md`, đạt tối thiểu R6 (+8đ).
 - Multi-prototype: không làm — nhóm tập trung 1 phương án duy nhất (augment, mock UI + AI thật ở lõi suy luận/generation).
 
 ## §9. Changelog
@@ -101,3 +101,4 @@ Ngoài ra hệ thống còn xử lý các kịch bản hạ tầng: K9 (Gemini A
 | 17/9/2026 (CP1) | Pivot từ "citation kèm mã trang" sang "cá nhân hoá theo mức hiểu + phát hiện segment hỏng" | HV1 mining phát hiện 2 painpoint mới nghiêm trọng hơn: `understanding_level` trống 99,85% và `grade_missing` segment hỏng 0,96% (`canvas-cp1.md` §1 dòng 1, 4) |
 | 18/9/2026 (CP4) | Cập nhật lại số liệu mining và khảo sát (bản 18/9 thay bản 17/9), bổ sung `eval/mining-log.md` và `validation/survey-log.md` | Số liệu chạy lại chính xác hơn, kèm phương pháp đếm có thể kiểm lại (`eval/mining-log.md`) |
 | 18/9/2026 (CP4) | Chốt quality bar ≥85% personalization + 100% segment detection, đo được 100/100% trên golden set 20 case | Kết quả thật từ `codebase/tests/HV2-RESULTS.md`, giữ nguyên theo quy tắc không đổi bar sau CP4 |
+| 18/9/2026 (CP5) | Đổi mô tả phụ của nút "Chuyển giảng viên" ở màn cảnh báo segment hỏng để nói rõ vẫn xem được câu trả lời mặc định sau đó | Validation với 2 người ngoài nhóm (V01, V02): V02 do dự 5 giây và suýt chọn nhầm vì lo mất quyền xem câu trả lời mặc định (`validation/feedback-log.md`, `validation/synthesis.md`) |
